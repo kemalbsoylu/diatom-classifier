@@ -1,0 +1,19 @@
+# IDEs
+.idea/
+.vscode/
+
+# Environments
+venv/
+env/
+.conda/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/
+archive.zip
+
+# Python
+__pycache__/
+*.py[cod]
