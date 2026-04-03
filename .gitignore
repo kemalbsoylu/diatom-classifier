@@ -6,6 +6,7 @@
 venv/
 env/
 .conda/
+.venv/
 
 # Jupyter
 .ipynb_checkpoints/
@@ -13,6 +14,10 @@ env/
 # Data
 data/
 archive.zip
+
+# Models
+models/
+*.pkl
 
 # Python
 __pycache__/

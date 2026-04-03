@@ -3,6 +3,9 @@ name = "diatom-classifier"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "fastai>=2.8.7",
+    "ipykernel>=7.2.0",
+    "jupyter>=1.1.1",
     "pandas>=3.0.2",
     "pillow>=12.2.0",
 ]
