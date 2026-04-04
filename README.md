@@ -21,14 +21,29 @@ This project uses [uv](https://github.com/astral-sh/uv) for fast dependency mana
 2. Install dependencies:
    ```bash
    uv venv
-   source .venv/bin/activate
+   source .venv/bin/activate # optional
    uv sync
    ```
 3. Place the raw Kaggle dataset into `data/raw/`.
 4. Run the data extraction script:
    ```bash
-   python src/data_prep.py
+   uv run src/data_prep.py
    ```
+
+## Usage (Inference)
+
+Once you have trained the baseline model and exported the `.pkl` weights into the `models/` directory, you can run predictions on individual diatom images via the command line.
+
+To predict the Genus of a specific image crop:
+   ```bash
+   uv run src/inference.py data/processed/Navicula/sample_image.png
+   ```
+
+To view all available arguments, including how to pass a custom model path:
+   ```bash
+   uv run src/inference.py --help
+   ```
+
 ## Licensing
 
 **Code License:** The Python scripts and Jupyter Notebooks in this repository are licensed under the [MIT License](LICENSE).
