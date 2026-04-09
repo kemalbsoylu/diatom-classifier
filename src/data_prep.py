@@ -87,17 +87,33 @@ def process_dataset() -> None:
 
                     genus = get_genus(name_node.text)
 
-                    # Extract bounding box coordinates
+                    # Extract original bounding box coordinates
                     bbox = obj.find('bbox')
                     if bbox is None:
                         continue
 
-                    xmin = int(bbox.find('xmin').text)
-                    ymin = int(bbox.find('ymin').text)
-                    xmax = int(bbox.find('xmax').text)
-                    ymax = int(bbox.find('ymax').text)
+                    orig_xmin = int(bbox.find('xmin').text)
+                    orig_ymin = int(bbox.find('ymin').text)
+                    orig_xmax = int(bbox.find('xmax').text)
+                    orig_ymax = int(bbox.find('ymax').text)
 
-                    # Crop the image (PIL expects a tuple: left, upper, right, lower)
+                    # Calculate width and height of the diatom
+                    box_width = orig_xmax - orig_xmin
+                    box_height = orig_ymax - orig_ymin
+
+                    # Define a margin (e.g., 15% extra space on all sides)
+                    margin_pct = 0.15
+                    margin_x = int(box_width * margin_pct)
+                    margin_y = int(box_height * margin_pct)
+
+                    # Apply margin, ensuring we don't go outside the image boundaries
+                    # img.width and img.height come from the PIL Image object
+                    xmin = max(0, orig_xmin - margin_x)
+                    ymin = max(0, orig_ymin - margin_y)
+                    xmax = min(img.width, orig_xmax + margin_x)
+                    ymax = min(img.height, orig_ymax + margin_y)
+
+                    # Crop the image with the new wider boundaries (PIL expects a tuple: left, upper, right, lower)
                     cropped_img = img.crop((xmin, ymin, xmax, ymax))
 
                     # Create a specific directory for this Genus if it doesn't exist
