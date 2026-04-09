@@ -10,7 +10,7 @@ import sys
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DEFAULT_MODEL_PATH = BASE_DIR / "models" / "baseline_model.pkl"
+DEFAULT_MODEL_PATH = BASE_DIR / "models" / "v2_resnet18_weighted.pkl"
 
 def predict_diatom(image_path: Path, model_path: Path) -> None:
     # 1. Validate paths before doing any heavy lifting
