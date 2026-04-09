@@ -22,3 +22,8 @@ models/
 # Python
 __pycache__/
 *.py[cod]
+
+# Ultralytics / YOLO
+runs/
+yolov8n.pt
+*.pt

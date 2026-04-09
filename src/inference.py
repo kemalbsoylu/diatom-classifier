@@ -1,6 +1,7 @@
 """
 Inference Script for Diatom Classifier.
 """
+
 import argparse
 from pathlib import Path
 import logging
