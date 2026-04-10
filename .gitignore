@@ -27,3 +27,6 @@ __pycache__/
 runs/
 yolov8n.pt
 *.pt
+
+# Secrets
+.env

@@ -6,12 +6,16 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
 import pandas as pd
 from pathlib import Path
-import io
+import os
+from dotenv import load_dotenv
 
-# -- Setup Paths --
+# Load environment variables from .env file (if it exists)
+load_dotenv()
+
+# -- Setup Environment & Paths --
+APP_ENV = os.environ.get("APP_ENV", "production")
+REPO_ID = "kemalbsoylu/diatom-models"
 BASE_DIR = Path(__file__).resolve().parent.parent
-YOLO_PATH = BASE_DIR / "models" / "yolo_diatom_detector.pt"
-RESNET_PATH = BASE_DIR / "models" / "v2_resnet18_weighted.pkl"
 
 st.set_page_config(page_title="Diatom AI", page_icon="🔬", layout="wide")
 
@@ -20,8 +24,19 @@ def load_models():
     from ultralytics import YOLO
     from fastai.vision.all import load_learner
 
-    yolo = YOLO(YOLO_PATH)
-    resnet = load_learner(RESNET_PATH)
+    if APP_ENV == "development":
+        # LOCAL: Use models stored on your hard drive
+        yolo_path = BASE_DIR / "models" / "yolo_diatom_detector.pt"
+        resnet_path = BASE_DIR / "models" / "v2_resnet18_weighted.pkl"
+    else:
+        # PRODUCTION: Download models from the Hugging Face Hub
+        from huggingface_hub import hf_hub_download
+        yolo_path = hf_hub_download(repo_id=REPO_ID, filename="yolo_diatom_detector.pt")
+        resnet_path = hf_hub_download(repo_id=REPO_ID, filename="v2_resnet18_weighted.pkl")
+
+    # Load them into memory
+    yolo = YOLO(yolo_path)
+    resnet = load_learner(resnet_path)
     return yolo, resnet
 
 st.title("🔬 Diatom Detection & Classification AI")
@@ -32,6 +47,8 @@ or use **Single Diatom Crop** if you already have a cropped image of a single di
 
 with st.spinner("Loading AI Models into memory..."):
     yolo_model, resnet_model = load_models()
+    if APP_ENV == "development":
+        st.sidebar.success("🔧 Running in Development Mode (Local Models)")
 
 # -- Sidebar Controls --
 st.sidebar.header("Configuration")

@@ -683,3 +683,4 @@ widgetsnbextension==4.0.15
     # via ipywidgets
 wrapt==2.1.2
     # via smart-open
+huggingface_hub
