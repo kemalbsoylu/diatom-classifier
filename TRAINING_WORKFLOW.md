@@ -1,16 +1,16 @@
-# Model Training Workflow
+# Model Training & Deployment Workflow
 
-This document outlines the end-to-end process used to train the Diatom Detection and Classification models. It is intended for developers and researchers who wish to reproduce the models from scratch.
+This document outlines the end-to-end process used to train the Diatom Detection and Classification models, as well as the methodology for deploying them to production.
 
 ## Phase 1: Data Preparation & Baseline Classifier
 
 Before training, the raw Pascal VOC XML annotations were parsed to extract individual diatom images.
 
 1. **Extraction:** Run the data preparation script to crop diatoms using a 15% margin (to preserve morphology during rotation).
-   ```bash
-   uv run src/data_prep.py
-   ```
-   *Output:* Populates the `data/processed/` directory with categorized folders based on Genus.
+    ```bash
+    uv run src/data_prep.py
+    ```
+    *Output:* Populates the `data/processed/` directory with categorized folders based on Genus.
 
 2. **Baseline Training:** See `notebooks/01_baseline.ipynb`.
    * **Architecture:** ResNet18
@@ -45,12 +45,20 @@ To transition from a simple classifier to a full slide-analysis pipeline, a YOLO
    ```
 
 3. **Training the Detector:** Using the Ultralytics CLI, the model was trained for 20 epochs at a 640px resolution.
-   ```bash
-   uv run yolo task=detect mode=train model=yolov8n.pt data=diatom_yolo.yaml epochs=20 imgsz=640
-   ```
-   *Result:* Achieved **0.906 mAP50**.
+    ```bash
+    uv run yolo task=detect mode=train model=yolov8n.pt data=diatom_yolo.yaml epochs=20 imgsz=640
+    ```
+    *Result:* Achieved **0.906 mAP50**.
 
 4. **Export:** The best weights were moved from the YOLO `runs/` directory to the official models directory.
-   ```bash
-   cp runs/detect/train/weights/best.pt models/yolo_diatom_detector.pt
-   ```
+    ```bash
+    cp runs/detect/train/weights/best.pt models/yolo_diatom_detector.pt
+    ```
+
+## Phase 4: Production Deployment
+
+To decouple the codebase from large binary files, the project utilizes a dual-repository deployment strategy.
+
+1. **Model Hosting:** The trained `.pkl` and `.pt` files were uploaded to a dedicated Hugging Face Models repository (kemalbsoylu/diatom-models). This prevents the main Git repository from bloating.
+2. **Web Application:** A Streamlit user interface (`src/app.py`) was built to allow users to interact with the models visually.
+3. **Hugging Face Spaces:** The application is deployed on Hugging Face Spaces. Using the `huggingface_hub` library, the app dynamically downloads the necessary weights from the model repository upon initialization, ensuring the environment remains lightweight and fast.
