@@ -1,3 +1,13 @@
+---
+title: Diatom Classifier
+emoji: 🔬
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+app_file: src/app.py
+pinned: false
+license: mit
+---
 # Diatom Classifier
 
 An end-to-end deep learning pipeline for the automated extraction, detection, and classification of microscopic diatoms using PyTorch, Fastai, and Ultralytics YOLOv8.
