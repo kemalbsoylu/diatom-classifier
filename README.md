@@ -7,6 +7,7 @@ sdk: streamlit
 app_file: src/app.py
 pinned: false
 license: mit
+python_version: 3.12
 ---
 # Diatom Classifier
 

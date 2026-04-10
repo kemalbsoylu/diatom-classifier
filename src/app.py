@@ -2,11 +2,12 @@
 Streamlit Web UI for the Diatom Classifier Pipeline.
 """
 
-import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
-import pandas as pd
-from pathlib import Path
 import os
+import streamlit as st
+import pandas as pd
+import numpy as np
+from pathlib import Path
+from PIL import Image, ImageDraw, ImageFont
 from dotenv import load_dotenv
 
 # Load environment variables from .env file (if it exists)
@@ -88,9 +89,12 @@ if uploaded_file is not None:
     # -----------------------------------------------------
     if app_mode == "Single Diatom Crop":
         with st.spinner("Classifying diatom..."):
-            from fastai.vision.core import PILImage
-            fastai_img = PILImage.create(original_image)
-            pred_class, pred_idx, probs = resnet_model.predict(fastai_img)
+
+            # Convert standard PIL Image directly to a numpy array
+            img_array = np.array(original_image)
+
+            # Predict directly on the array
+            pred_class, pred_idx, probs = resnet_model.predict(img_array)
             conf = probs[pred_idx].item() * 100
 
             st.success("Classification Complete!")
@@ -136,9 +140,11 @@ if uploaded_file is not None:
 
                 cropped_img = original_image.crop((crop_x1, crop_y1, crop_x2, crop_y2))
 
-                # Classify with ResNet
-                fastai_img = PILImage.create(cropped_img)
-                pred_class, pred_idx, probs = resnet_model.predict(fastai_img)
+                # Convert cropped PIL Image to a numpy array
+                img_array = np.array(cropped_img)
+
+                # Classify directly with ResNet
+                pred_class, pred_idx, probs = resnet_model.predict(img_array)
                 conf = probs[pred_idx].item() * 100
 
                 # Draw on display image
