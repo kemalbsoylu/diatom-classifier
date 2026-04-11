@@ -98,7 +98,7 @@ if uploaded_file is not None:
             conf = probs[pred_idx].item() * 100
 
             st.success("Classification Complete!")
-            st.metric(label="Predicted Genus", value=pred_class, delta=f"{conf:.2f}% Confidence")
+            st.metric(label="Predicted Genus", value=f"**{pred_class}**", delta=f"{conf:.2f}% Confidence", border=True)
 
             st.info("Note: This mode bypassed the automatic detector and evaluated the entire image as a single diatom. For best results, ensure your image is cropped tightly around the diatom with a maximum of 15% background margin.")
 
@@ -123,8 +123,6 @@ if uploaded_file is not None:
             except IOError:
                 font = ImageFont.load_default()
 
-            from fastai.vision.core import PILImage
-
             for box in results.boxes.xyxy:
                 diatom_count += 1
                 x1, y1, x2, y2 = map(int, box.tolist())
@@ -147,10 +145,22 @@ if uploaded_file is not None:
                 pred_class, pred_idx, probs = resnet_model.predict(img_array)
                 conf = probs[pred_idx].item() * 100
 
-                # Draw on display image
-                label_text = f"{pred_class} ({conf:.1f}%)"
+                # Draw bounding box on display image
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
-                draw.text((x1, y1 - 25), label_text, fill="red", font=font)
+
+                # Format text with the ID matching the CSV report
+                label_text = f"#{diatom_count} {pred_class} ({conf:.1f}%)"
+
+                # Calculate text background size for readability
+                left, top, right, bottom = font.getbbox(label_text)
+                text_width = right - left
+                text_height = bottom - top
+
+                # Draw solid red background for text (positioned inside top-left of the box)
+                draw.rectangle([x1, y1, x1 + text_width + 6, y1 + text_height + 6], fill="red")
+
+                # Draw white text over the red background
+                draw.text((x1 + 3, y1 + 3), label_text, fill="white", font=font, stroke_width=0.5, stroke_fill="white")
 
                 # Save to report
                 report_data.append({
@@ -161,7 +171,9 @@ if uploaded_file is not None:
 
         # Render Full Slide Results
         if report_data:
-            st.success(f"Successfully found {diatom_count} diatoms!")
+            word = "diatom" if diatom_count == 1 else "diatoms"
+            st.success(f"Successfully found {diatom_count} {word}!")
+
             df = pd.DataFrame(report_data)
             st.dataframe(df, use_container_width=True)
 
@@ -182,3 +194,7 @@ if uploaded_file is not None:
             st.image(original_image, caption="Original Upload", use_container_width=True)
         with col2:
             st.image(display_image, caption="Analyzed Image", use_container_width=True)
+
+# -- Footer AI Warning --
+st.markdown("---")
+st.caption("**Disclaimer:** This application utilizes artificial intelligence and may produce inaccurate results. Always verify critical findings with a qualified domain expert.")
